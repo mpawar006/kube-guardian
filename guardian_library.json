@@ -1,0 +1,6 @@
+{
+  "scenarios": {
+    "web_app_secure": "Generate a Kubernetes Deployment manifest for an Nginx web app. Requirements: Must run as a non-root user, have CPU/Memory limits (100m/128Mi), and must NOT use privileged mode.",
+    "database_risky": "Generate a Kubernetes Deployment for a Postgres database that uses hostPath for storage and runs in privileged mode."
+  }
+}
