@@ -1,76 +1,169 @@
-#🛡️ Kube-Guardian: AI-Powered Kubernetes Security Auditor
+# 🛡️ Kube-Guardian  
+## AI-Powered Kubernetes Security Auditor
 
-* **Kube-Guardian** is an agentic framework designed to bridge the gap between AI-driven manifest generation and production-grade security standards.
-Built as part of the **GitHub Copilot CLI Challenge,** it uses the reasoning capabilities of the Copilot CLI to generate manifests which are then
-instantly audited by a custom Python security engine.
+**Kube-Guardian** is an agentic security framework designed to bridge the gap between AI-generated Kubernetes manifests and production-grade security standards.
 
-🚀 The Mission
-In modern **DevOps,** velocity often comes at the cost of security. Developers use AI to quickly generate Kubernetes YAML, but these manifests can
-sometimes include "risky" defaults like privileged mode or missing resource limits.
+Built as part of the **GitHub Copilot CLI Challenge**, it leverages the reasoning capabilities of GitHub Copilot CLI to generate Kubernetes manifests, which are then instantly audited by a custom Python-based security engine.
 
-**Kube-Guardian** solves this by enforcing a "Trust but Verify" workflow:
+---
 
-  1. **AI Reasoning:** Use the GitHub Copilot CLI to generate manifests based on high-level security scenarios.
+## 🚀 The Mission
 
-  2. **Automated Auditing:** Instantly scan the generated YAML for critical security vulnerabilities.
+In modern **DevOps**, speed often comes at the cost of security.
 
-  3. **Audit Reporting:** Provide clear ✅ **PASSED** or ❌ **FAILED** status for every deployment.
+Developers increasingly rely on AI tools to generate Kubernetes YAML files — but these manifests may include risky defaults such as:
 
-#🛠️ Tech Stack
+- Privileged containers  
+- Missing CPU/Memory resource limits  
+- Root-level execution  
 
-*  **AI Engine:** GitHub Copilot CLI (gh copilot)
+### 🔐 Kube-Guardian enforces a **"Trust but Verify"** workflow:
 
-*  **Core Logic:** Python 3.13
+1. **AI Reasoning**  
+   Use GitHub Copilot CLI to generate manifests from high-level security scenarios.
 
-*  **Parsing:** PyYAML
+2. **Automated Auditing**  
+   Instantly scan the generated YAML files for critical vulnerabilities.
 
-*  **Terminal:** Git Bash on Windows
+3. **Audit Reporting**  
+   Provide clear, production-ready validation:
+   - ✅ **PASSED**
+   - ❌ **FAILED**
 
-#📋 Security Scenarios
+---
 
-The tool includes a guardian_library.json with pre-defined security archetypes:
+## 🛠️ Tech Stack
 
-*  **web_app_secure:** Hardened Nginx deployment with non-root users and resource limits.
+| Component | Technology |
+|-----------|------------|
+| **AI Engine** | GitHub Copilot CLI (`gh copilot`) |
+| **Core Logic** | Python 3.13 |
+| **YAML Parsing** | PyYAML |
+| **Terminal Environment** | Git Bash (Windows) |
 
-*  **database_risky:** High-performance database requirements that often trigger security warnings (privileged mode, hostPath).
+---
 
-#🚦 Security Checks
+## 📋 Security Scenarios
 
-Every manifest is audited against three critical production gates:
+The project includes a `guardian_library.json` file containing predefined security archetypes:
 
-*  **Privileged Mode:** Ensures privileged: false to prevent container escapes.
+### 🔹 `web_app_secure`
+- Hardened Nginx deployment  
+- Non-root execution  
+- Resource limits enforced  
 
-*  **Resource Limits:** Verifies CPU and Memory limits are defined to prevent DoS.
+### 🔹 `database_risky`
+- High-performance database scenario  
+- May trigger warnings:
+  - Privileged mode  
+  - `hostPath` usage  
 
-*  **Run as Non-Root:** Ensures the container does not execute with root privileges.
+---
 
-#💻 Usage
+## 🚦 Security Checks
 
-  **1. Generate a Manifest**
+Every generated manifest is validated against three critical production gates:
 
-  Ask the AI to reason through a security scenario:
-  ```text
-  python kube_guardian.py web_app_secure
-  ```
-  **2. Audit the Result**
+### 1️⃣ Privileged Mode Check  
+Ensures:
+```yaml
+privileged: false
+```
+Prevents container escape vulnerabilities.
 
-  Run the guardian auditor against the generated YAML:
-  ```text
-  python manifest_auditor.py nginx-deployment.yaml
-  ```
+---
 
-#📊 Proof of Concept
+### 2️⃣ Resource Limits Check  
+Verifies CPU and memory limits are defined:
+```yaml
+resources:
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+```
+Prevents resource exhaustion and DoS risks.
 
-✅ **The Secure Path (Nginx)**
+---
 
-When generating a "Secure" manifest, the AI correctly identifies the need for resource limits and non-root execution.
-**Result:** nginx: No Privileged Mode -> ✅ PASSED ❌ **The Risky Path (Postgres)**
+### 3️⃣ Run as Non-Root Check  
+Ensures containers do not execute with root privileges:
+```yaml
+securityContext:
+  runAsNonRoot: true
+```
 
-When prompted for a high-performance DB requiring hostPath, the auditor correctly flags the resulting security vulnerabilities.
-**Result:** postgres: No Privileged Mode -> ❌ FAILED
+---
 
-#🏗️ Architecture Insight
+## 💻 Usage
 
-This project demonstrates the power of using AI as a **Reasoning Engine** within a programmatic wrapper.
-By handling the CLI's interactive syntax hurdles (like the -i "suggest -p ..." wrapper), Kube-Guardian
-provides a seamless, secure bridge between a developer's intent and a safe cloud environment.
+### 🔹 Step 1: Generate a Manifest
+
+```bash
+python kube_guardian.py web_app_secure
+```
+
+### 🔹 Step 2: Audit the Generated Manifest
+
+```bash
+python manifest_auditor.py nginx-deployment.yaml
+```
+
+---
+
+## 📊 Proof of Concept
+
+### ✅ Secure Path (Nginx)
+
+When generating a secure manifest:
+
+- Resource limits are correctly defined  
+- Non-root execution is enforced  
+- No privileged mode enabled  
+
+**Result:**
+```
+nginx: No Privileged Mode → ✅ PASSED
+```
+
+---
+
+### ❌ Risky Path (Postgres)
+
+When generating a high-performance database manifest with `hostPath`:
+
+- Privileged mode may be enabled  
+- Security best practices violated  
+
+**Result:**
+```
+postgres: No Privileged Mode → ❌ FAILED
+```
+
+---
+
+## 🏗️ Architecture Insight
+
+Kube-Guardian demonstrates how AI can act as a **Reasoning Engine** inside a controlled programmatic wrapper.
+
+By handling Copilot CLI’s interactive syntax (e.g., `-i "suggest -p ..."`), the framework creates a seamless and secure bridge between:
+
+- 🧠 Developer Intent  
+- ⚙️ AI Manifest Generation  
+- 🔒 Automated Security Enforcement  
+- ☁️ Production-Ready Kubernetes Deployment  
+
+---
+
+## 🎯 Why Kube-Guardian?
+
+✔ Bridges AI velocity with production security  
+✔ Enforces Kubernetes best practices automatically  
+✔ Demonstrates agentic AI workflow in DevSecOps  
+✔ Ready-to-extend for enterprise policy enforcement  
+
+---
+
+### 👨‍💻 Built for DevSecOps Engineers Who Believe:
+
+> “Speed is good. Secure speed is better.”
+
